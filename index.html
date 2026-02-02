@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Our Love Story ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+  --herName: "Pallavi";
+  --yourName: "Me";
+  --yearMet: "2025";
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: black;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
+}
+
+/* Slideshow Background */
+#bg-slideshow {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 2s ease-in-out;
+}
+
+.slide.active { opacity: 1; }
+
+/* ===== START BLUR ===== */
+.start-layer {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(20px);
+  background: rgba(0,0,0,0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.start-card {
+  background: rgba(255,255,255,0.15);
+  padding: 44px;
+  border-radius: 28px;
+  color: white;
+  text-align: center;
+  max-width: 360px;
+  cursor: pointer;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* ===== QUESTION CARD ===== */
+.container {
+  position: relative;
+  z-index: 100;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  background: rgba(255,255,255,0.92);
+  padding: 44px;
+  width: 380px;
+  border-radius: 32px;
+  text-align: center;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+}
+
+h1 { color: #ff4d6d; }
+p  { color: #555; font-size: 17px; min-height: 60px; }
+
+.buttons {
+  position: relative;
+  height: 150px;
+}
+
+button {
+  position: absolute;
+  padding: 14px 36px;
+  border-radius: 40px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#yes {
+  background: linear-gradient(135deg,#ff4d6d,#ff758f);
+  color: white;
+  left: 50%;
+  transform: translateX(-110%);
+}
+
+#no {
+  background: #eee;
+  color: #333;
+  left: 50%;
+  transform: translateX(10%);
+}
+
+/* ===== FINAL SCENE (Fixed Layout) ===== */
+.final-scene {
+  position: fixed;
+  inset: 0;
+  background: black;
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.final-scene img {
+  width: 80%;
+  max-width: 420px;
+  border-radius: 26px;
+  box-shadow: 0 30px 60px rgba(255,255,255,0.3);
+  margin-bottom: 20px;
+  z-index: 10; /* Lower than credits */
+  position: relative;
+}
+
+/* ===== CREDITS (Fixed for Scrolling on Top) ===== */
+.credits-viewport {
+  position: absolute;
+  inset: 0;
+  z-index: 999; /* This ensures text is ON TOP of the photo */
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.credits-content {
+  position: absolute;
+  width: 100%;
+  top: 100%;
+  text-align: center;
+  color: white;
+  font-size: 18px;
+  line-height: 1.9;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* Shadow makes it readable over photo */
+}
+
+.credits-content p {
+  margin: 26px 0;
+  color: white !important; /* Ensure text remains white */
+}
+
+@keyframes creditsRoll {
+  from { top: 100%; }
+  to   { top: -3500px; } /* Adjust based on text length */
+}
+
+/* ===== CONFETTI ===== */
+canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1500;
+}
+</style>
+</head>
+
+<body>
+
+<div id="bg-slideshow">
+  <div class="slide active" style="background-image: url('her.jpg');"></div>
+  <div class="slide" style="background-image: url('her2.jpg');"></div>
+  <div class="slide" style="background-image: url('her3.jpg');"></div>
+</div>
+
+<div class="start-layer" id="startLayer">
+  <div class="start-card">
+    <h2>Hey my favourite person 💖</h2>
+    <p>This isn’t just a page.<br>It’s a feeling.<br><br>Tap when you’re ready ✨</p>
+  </div>
+</div>
+
+<audio id="bgMusic" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<div class="container">
+  <div class="card" id="card">
+    <h1 id="title"></h1>
+    <p id="question">Will you be my Valentine? 💌</p>
+
+    <div class="buttons">
+      <button id="yes">YES 💖</button>
+      <button id="no">NO 🙈</button>
+    </div>
+  </div>
+</div>
+
+<div class="final-scene" id="finalScene">
+  <img src="us.jpg" alt="Us ❤️">
+  <div class="credits-viewport">
+    <div class="credits-content" id="creditsContent"></div>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+const her = "Pallavi";
+const you = "Prashanto";
+const dateMet = new Date("2025-06-11"); // Update to your exact date
+
+document.getElementById("title").innerText = `Hey ${her} ❤️`;
+
+/* Start */
+document.getElementById("startLayer").onclick = () => {
+  document.getElementById("startLayer").style.display = "none";
+  document.getElementById("bgMusic").play();
+  startSlideshow();
+};
+
+function startSlideshow() {
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+  setInterval(() => {
+    slides[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+  }, 4000);
+}
+
+/* NO button escape */
+const noBtn = document.getElementById("no");
+const moveNo = () => {
+  noBtn.style.left = Math.random() * 80 + "%";
+  noBtn.style.top = Math.random() * 80 + "%";
+  noBtn.style.position = "fixed";
+}
+noBtn.addEventListener("mouseover", moveNo);
+
+/* YES FLOW */
+let stage = 1;
+document.getElementById("yes").onclick = () => {
+  if (window.navigator.vibrate) window.navigator.vibrate(100);
+
+  const q = document.getElementById("question");
+  if (stage === 1) {
+    // Typewriter effect for marriage question
+    let text = "Then answer me one more thing… ❤️ Will you marry me? 💍";
+    q.innerHTML = "";
+    let i = 0;
+    let type = setInterval(() => {
+      q.innerHTML += text.charAt(i);
+      i++;
+      if(i >= text.length) clearInterval(type);
+    }, 50);
+    stage = 2;
+  } else {
+    document.getElementById("card").style.display = "none";
+    document.getElementById("finalScene").style.display = "flex";
+    startConfetti();
+    generateCredits();
+  }
+};
+
+/* YOUR ORIGINAL POETIC LOVE CREDITS */
+function generateCredits() {
+  const c = document.getElementById("creditsContent");
+  const days = Math.floor((new Date() - dateMet) / (1000 * 60 * 60 * 24));
+
+  const lines = [
+    `It started quietly.`,
+    `No signs. No promises.`,
+    `Just a moment in 2025.`,
+    `Exactly ${days} beautiful days ago.`,
+    `I didn’t know then,`,
+    `that this moment would become my favourite memory.`,
+    `Some people enter your life`,
+    `and slowly become your world.`,
+    `${her}, you did that to me.`,
+    `At first, you were just someone.`,
+    `Then you became someone important.`,
+    `And before I realised…`,
+    `you became everything.`,
+    `You turned ordinary days into something I looked forward to.`,
+    `You made silence feel safe.`,
+    `You made laughter feel easier.`,
+    `I found comfort in your presence.`,
+    `And strength in your belief in me.`,
+    `With you, love didn’t feel loud.`,
+    `It felt calm.`,
+    `It felt steady.`,
+    `It felt real.`,
+    `I don’t promise a perfect life.`,
+    `But I promise a honest one.`,
+    `I promise to choose you,`,
+    `on easy days,`,
+    `and especially on the hard ones.`,
+    `In every version of the future I imagine,`,
+    `you are there.`,
+    `Walking beside me.`,
+    `Holding my hand.`,
+    `Laughing at the same silly things.`,
+    `This is not the end of a story.`,
+    `This is the beginning of forever.`,
+    `And if love has a definition…`,
+    `it looks a lot like you.`,
+    `Always you.`,
+    `Only you.`,
+    `Forever us.`,
+    `— ${you} ❤️`
+  ];
+
+  lines.forEach(line => {
+    const p = document.createElement("p");
+    p.innerText = line;
+    c.appendChild(p);
+  });
+
+  // Start the roll
+  c.style.animation = "creditsRoll 45s linear forwards";
+}
+
+/* CONFETTI */
+const canvas = document.getElementById("confetti");
+const ctx = canvas.getContext("2d");
+function startConfetti() {
+  canvas.width = innerWidth; canvas.height = innerHeight;
+  let confetti = [];
+  for (let i = 0; i < 200; i++) {
+    confetti.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*6+4,
+      s: Math.random()*3+2,
+      c: `hsl(${Math.random()*360},100%,70%)`
+    });
+  }
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confetti.forEach(p => {
+      p.y += p.s;
+      if (p.y > canvas.height) p.y = -10;
+      ctx.beginPath(); ctx.fillStyle = p.c;
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+</script>
+</body>
+</html>
